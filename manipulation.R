@@ -8,7 +8,7 @@ install_github("lchiffon/wordcloud2")
 library(wordcloud2)
 library(ggthemes)
 
-# twilight ----
+# read in twilight ----
 twilight <- readLines("twilight2.txt")
 twilight_df <- data.frame(text = twilight)
 twilight_dl <- unnest_tokens(twilight_df, 
@@ -25,6 +25,7 @@ twilight_dl4 <- twilight_dl3 %>%
 twilight_words <- twilight_dl4 %>% 
   count(word, sort = TRUE)
 
+# counting words
 twilight_words %>%
   top_n(20) %>%
   ggplot(aes(reorder(word, n), n)) +
@@ -33,13 +34,13 @@ twilight_words %>%
   ggtitle("Twilight") +
   labs(y = "Word Count", x = "")
 
+# joining with bing sentiment lexicon
 twi_words_senti <- twilight_words %>%
   inner_join(bing, by = "word")
 twi_words_senti %>%
   top_n(20)
 
-
-
+# viz seniment breakdown
 twi_words_senti %>%
   top_n(20) %>%
   ggplot(aes(word, n, fill(sentiment))) +
@@ -60,7 +61,7 @@ ggplot(twilight_senti_count, aes(reorder(sentiment, n), n)) +
   ggtitle("Twilight") +
   labs(y = "Word Count", x = "Word Sentiment")
 
-# playing with afinn ----
+# playing with afinn sentiment lexicon ----
 afinn <- get_sentiments("afinn")
 twilight_senti2 <- twilight_words %>%
   inner_join(afinn)
@@ -71,7 +72,9 @@ twilight_senti_count2 <- twilight_senti2 %>%
   count(score)
 ggplot(twilight_senti_count2, aes(score, n)) +
   geom_histogram(stat = "identity")
-# new moon ----
+
+
+# new moon (same process)----
 new_moon <- readLines("new_moon2.txt")
 new_moon_df <- data.frame(text = new_moon)
 new_moon_dl <- unnest_tokens(new_moon_df, 
